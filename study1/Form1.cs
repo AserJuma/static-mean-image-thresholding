@@ -8,6 +8,7 @@ namespace study1
     {
         //Bitmap
         private Bitmap _myBitmap;
+        private Bitmap _bitUndo;
         //Main form items
         private MainMenu _myMainMenu;
         private MenuItem _menuItem1;
@@ -22,6 +23,8 @@ namespace study1
         private MenuItem _meanThreshold;
         private TextBox _textBox1;
         private Label _label1;
+        //In menuItem3
+        private MenuItem _undo;
         private readonly System.ComponentModel.Container _components = null;
 
         private Form1()
@@ -52,13 +55,15 @@ namespace study1
             this._staticThreshold = new MenuItem();
             this._meanThreshold = new MenuItem();
             this._label1 = new Label();
+
+            this._undo = new MenuItem();
             
             //Main Menu Tabs
             this._myMainMenu.MenuItems.AddRange(new[]
             {
                 this._menuItem1,
+                this._menuItem3,
                 this._menuItem2,
-                //this._menuItem3,
             });
 
             //First Dropdown Menu Tab
@@ -83,12 +88,24 @@ namespace study1
             this._fileExit.Index = 1;
             this._fileExit.Text = "Exit";
             this._fileExit.Click += this.File_Exit;
+            
+            //Second Dropdown menu
+            this._menuItem3.Index = 1;
+            this._menuItem3.MenuItems.AddRange(new []
+            {
+                this._undo
+            });
+            this._menuItem3.Text = "Edit";
+
+            this._undo.Index = 0;
+            this._undo.Text = "Undo";
+            this._undo.Click += this.OnUndo;
 
             //Third Dropdown Menu Tab
             //Name
             this._menuItem2.Text = "Operations";
             //Index
-            this._menuItem2.Index = 1;
+            this._menuItem2.Index = 2;
             //Child nodes
             this._menuItem2.MenuItems.AddRange(new []
             {
@@ -112,13 +129,13 @@ namespace study1
             this._textBox1 = new TextBox();
             this._textBox1.Name = "_textBox1";
             this._textBox1.ReadOnly = true;
-            this._textBox1.Size = new System.Drawing.Size(142, 20);
+            this._textBox1.Size = new Size(142, 20);
             
             this._label1.AutoSize = true;
             this._label1.Name = "_label1";
-            this._label1.Size = new System.Drawing.Size(109, 13);
+            this._label1.Size = new Size(109, 13);
             this._label1.TabIndex = 4;
-            this._label1.Text = "Otsu Threshold Value:";
+            this._label1.Text = "Optimal Threshold Value:";
             
             //Form1
             this.AutoScaleBaseSize = new Size(5, 13);
@@ -127,15 +144,15 @@ namespace study1
             this.Menu = this._myMainMenu;
             this.Name = $"Study into .NET GUI & Image Processing";
             this.Text = "GrayScale & Thresholding";
-            ActiveControl = null;
-            this.Focus();
+            //ActiveControl = null;
+            //this.Focus();
             
             this.Load += this.Form1_Load;
             this.ResumeLayout(false);
             this.PerformLayout();
         }
         
-        //Helper function to resize form window to fit the image
+        //Helper function to resize form window to fit the image and text
         private void ResizeFormToFitImage(Bitmap image)
         {
             this.ClientSize = new Size((image.Width + 200), (image.Height + 5));
@@ -143,7 +160,7 @@ namespace study1
 
         private void Form1_Load(object sender, EventArgs e) { }
 
-        private void Load_window(Bitmap bmp)
+        private void Load_Window(Bitmap bmp)
         {
             ResizeFormToFitImage(bmp); 
             
@@ -171,8 +188,8 @@ namespace study1
             if (DialogResult.OK != openFileDialog.ShowDialog()) return;
             
             _myBitmap = (Bitmap)Image.FromFile(openFileDialog.FileName, false);
-            
-            Load_window(_myBitmap);
+            Load_Window(_myBitmap);
+            this.AutoScroll = true;
             this.Invalidate();
         }
         //File_Exit Function
@@ -183,11 +200,13 @@ namespace study1
         //GrayScale Function
         private void _applyGrayScale(object sender, EventArgs e)
         {
+            _bitUndo = (Bitmap)_myBitmap.Clone();
             if (BitmapOperations.Convert2GrayScaleFast(_myBitmap))
                 this.Invalidate();
         }
         private void _applyStaticThreshold(object sender, EventArgs e)
         {
+            _bitUndo = (Bitmap)_myBitmap.Clone();
             var input = new Input();
             input.Text = "Threshold";
             
@@ -197,9 +216,19 @@ namespace study1
         }
         private void _applyDynamicThreshold(object sender, EventArgs e)
         {
+            _bitUndo = (Bitmap)_myBitmap.Clone();
             int th = BitmapOperations.GetOptimalThreshold(_myBitmap);
             BitmapOperations.ApplyThreshold(_myBitmap, th);
             _textBox1.Text = th.ToString();
+            this.Invalidate();
+        }
+
+        private void OnUndo(object sender, EventArgs e)
+        {
+            Bitmap tmp = (Bitmap)_myBitmap.Clone();
+            _myBitmap = (Bitmap)_bitUndo.Clone();
+            _bitUndo = (Bitmap)tmp.Clone();
+            Load_Window(_bitUndo);
             this.Invalidate();
         }
         protected override void OnPaint(PaintEventArgs e)

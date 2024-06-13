@@ -66,13 +66,10 @@ namespace study1
         }
         public static void ApplyThreshold(Bitmap bmp, int thresholdValue)
         {
-            var maxVal = 256;
-
+            var maxVal = 764;
             if (thresholdValue < 0) return;
             else if (thresholdValue >= maxVal) return;
-
             var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
-
             unsafe
             {
                 var ptr = (byte*)bmpData.Scan0.ToPointer();
@@ -97,9 +94,8 @@ namespace study1
                 }
             }
             bmp.UnlockBits(bmpData);
-            
         }
-
+        //Compute q values
         private static float Px(int init, int end, int[] hist)
         {
             int sum = 0;
@@ -110,7 +106,7 @@ namespace study1
             return (float)sum;
         }
 
-        // function is used to compute the mean values in the equation (mu)
+        // Compute the mean values in the equation (mu)
         private static float Mx(int init, int end, int[] hist)
         {
             int sum = 0;
@@ -121,13 +117,12 @@ namespace study1
             return (float)sum;
         }
 
-        // finds the maximum element in a vector
+        // Maximum element in a vector
         private static int FindMax(float[] vec, int n)
         {
             float maxVec = 0;
             int idx=0;
             int i;
-
             for (i = 1; i < n - 1; i++)
             {
                 if (vec[i] > maxVec)
@@ -139,7 +134,7 @@ namespace study1
             return idx;
         }
 
-        // simply computes the image histogram
+        // Computes the image histogram
         private static unsafe void GetHistogram(byte* p, int w, int h, int ws, int[] hist)
         {
             hist.Initialize();
@@ -153,10 +148,10 @@ namespace study1
             }
         }
 
-        // find otsu threshold
-        public static int GetOtsuThreshold(Bitmap bmp)
+        // Find otsu threshold
+        private static int GetOtsuThreshold(Bitmap bmp)
         {
-            byte t=0;
+            byte threshold = 0;
 	        float[] vet=new float[256];
             int[] hist=new int[256];
             vet.Initialize();
@@ -172,7 +167,7 @@ namespace study1
 
                 GetHistogram(p,bmp.Width,bmp.Height,bmData.Stride, hist);
 
-                // loop through all possible t values and maximize between class variance
+                // loop through all possible threshold values and maximize between class variance
                 for (k = 1; k != 255; k++)
                 {
                     p1 = Px(0, k, hist);
@@ -182,14 +177,14 @@ namespace study1
                         p12 = 1;
                     float diff=(Mx(0, k, hist) * p2) - (Mx(k + 1, 255, hist) * p1);
                     vet[k] = (float)diff * diff / p12;
-                    //vet[k] = (float)Math.Pow((Mx(0, k, hist) * p2) - (Mx(k + 1, 255, hist) * p1), 2) / p12;
+                    vet[k] = (float)Math.Pow((Mx(0, k, hist) * p2) - (Mx(k + 1, 255, hist) * p1), 2) / p12;
                 }
             }
             bmp.UnlockBits(bmData);
 
-            t = (byte)FindMax(vet, 256);
+            threshold = (byte)FindMax(vet, 256);
 
-            return t;
+            return threshold;
         }
         
         public static int GetOptimalThreshold(Bitmap bmp)
