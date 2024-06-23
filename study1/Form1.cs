@@ -33,6 +33,7 @@ namespace study1
             _myBitmap = new Bitmap(2, 2);
         }
 
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing) _components?.Dispose();
@@ -86,6 +87,7 @@ namespace study1
 
             //File Exit
             this._fileExit.Index = 1;
+            this._fileExit.Shortcut = Shortcut.CtrlE;
             this._fileExit.Text = "Exit";
             this._fileExit.Click += this.File_Exit;
             
@@ -98,7 +100,7 @@ namespace study1
             this._menuItem3.Text = "Edit";
 
             this._undo.Index = 0;
-            this._undo.Text = "Undo";
+            this._undo.Text = "Undo/Redo";
             this._undo.Click += this.OnUndo;
 
             //Third Dropdown Menu Tab
@@ -146,8 +148,7 @@ namespace study1
             this.Text = "GrayScale & Thresholding";
             //ActiveControl = null;
             //this.Focus();
-            
-            this.Load += this.Form1_Load;
+            //this.Load += this.Form1_Load;
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -158,7 +159,7 @@ namespace study1
             this.ClientSize = new Size((image.Width + 200), (image.Height + 5));
         }
 
-        private void Form1_Load(object sender, EventArgs e) { }
+        //private void Form1_Load(object sender, EventArgs e) { }
 
         private void Load_Window(Bitmap bmp)
         {
@@ -177,20 +178,21 @@ namespace study1
         //File Load Function
         private void File_Load(object sender, EventArgs e)
         {
-            
             var openFileDialog = new OpenFileDialog();
 
             openFileDialog.InitialDirectory = "c:\\";
-            openFileDialog.Filter = "Bitmap files (*.bmp)|*.bmp|Jpeg files (*.jpg)|*.jpg|All valid files (*.bmp/*.jpg)|*.bmp/*.jpg";
+            openFileDialog.Filter = "Bitmap files (*.bmp)|*.bmp|Jpeg files (*.jpg)|*.jpg|All valid files (*.bmp/*.jpg)|*.bmp;*.jpg";
             openFileDialog.FilterIndex = 1;
             openFileDialog.RestoreDirectory = false;
 
             if (DialogResult.OK != openFileDialog.ShowDialog()) return;
-            
+            _myBitmap?.Dispose();
             _myBitmap = (Bitmap)Image.FromFile(openFileDialog.FileName, false);
+            _bitUndo = null;
             Load_Window(_myBitmap);
             this.AutoScroll = true;
             this.Invalidate();
+            this.Update();
         }
         //File_Exit Function
         private void File_Exit(object sender, EventArgs e)
@@ -211,6 +213,7 @@ namespace study1
             input.Text = "Threshold";
             
             if (DialogResult.OK != input.ShowDialog()) return;
+            BitmapOperations.Convert2GrayScaleFast(_myBitmap);
             BitmapOperations.ApplyThreshold(_myBitmap, input.Nvalue);
             this.Invalidate();
         }
@@ -218,14 +221,19 @@ namespace study1
         {
             _bitUndo = (Bitmap)_myBitmap.Clone();
             int th = BitmapOperations.GetOptimalThreshold(_myBitmap);
+            // Should I automatically greyscale colored images in both thresholding functions? Seems to still apply it to the colored if not done manually
             BitmapOperations.ApplyThreshold(_myBitmap, th);
             _textBox1.Text = th.ToString();
             this.Invalidate();
         }
-
+        // Right now it's an Undo/Redo for the last Operation
         private void OnUndo(object sender, EventArgs e)
         {
-            Bitmap tmp = (Bitmap)_myBitmap.Clone();
+            if (_bitUndo == null || _myBitmap == null)
+            {
+                return;
+            }
+            var tmp = (Bitmap)_myBitmap.Clone();
             _myBitmap = (Bitmap)_bitUndo.Clone();
             _bitUndo = (Bitmap)tmp.Clone();
             Load_Window(_bitUndo);
@@ -243,9 +251,11 @@ namespace study1
         // Program Entry Point
         private static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            //Application.EnableVisualStyles();
+            //Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
     }
 }
+
+//TODO: Fix window scaling issue when reloading to a small image

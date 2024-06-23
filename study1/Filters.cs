@@ -6,45 +6,6 @@ namespace study1
 {
     public static class BitmapOperations
     {
-        /*public static bool GreyScale(Bitmap b)
-        {
-            // GDI+ still lies to us - the return format is BGR, NOT RGB.
-            BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
-
-            int stride = bmData.Stride;
-            System.IntPtr Scan0 = bmData.Scan0;
-
-            unsafe
-            {
-                byte* p = (byte*)(void*)Scan0;
-
-                int nOffset = stride - b.Width * 3;
-
-                byte red, green, blue;
-
-                for (int y = 0; y < b.Height; ++y)
-                {
-                    for (int x = 0; x < b.Width; ++x)
-                    {
-                        blue = p[0];
-                        green = p[1];
-                        red = p[2];
-
-                        //string pixel_bgr_values = ("B:" + blue + ", G:" + green + ", R:" + red);
-                        //Console.WriteLine(pixel_bgr_values);
-
-                        p[0] = p[1] = p[2] = (byte)(.299 * red + .587 * green + .114 * blue);
-
-                        p += 3;
-                    }
-                    p += nOffset;
-                }
-            }
-
-            b.UnlockBits(bmData);
-
-            return true;
-        }*/
         public static bool Convert2GrayScaleFast(Bitmap bmp)
         {
             BitmapData bmData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
@@ -64,37 +25,6 @@ namespace study1
             bmp.UnlockBits(bmData);
             return true;
         }
-        public static void ApplyThreshold(Bitmap bmp, int thresholdValue)
-        {
-            var maxVal = 764;
-            if (thresholdValue < 0) return;
-            else if (thresholdValue >= maxVal) return;
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
-            unsafe
-            {
-                var ptr = (byte*)bmpData.Scan0.ToPointer();
-                var stopAddress = (int)ptr + bmpData.Stride * bmpData.Height;
-
-                while ((int)ptr != stopAddress)
-                {
-                    var totalRgb = (ptr[0] + ptr[1] + ptr[2]) / 3;
-                    if (totalRgb <= thresholdValue) 
-                    { 
-                        ptr[0] = 0; 
-                        ptr[1] = 0; 
-                        ptr[2] = 0; 
-                    }
-                    else
-                    {
-                        ptr[0] = 255;
-                        ptr[1] = 255;
-                        ptr[2] = 255;
-                    }
-                    ptr += 3;
-                }
-            }
-            bmp.UnlockBits(bmpData);
-        }
         //Compute q values
         private static float Px(int init, int end, int[] hist)
         {
@@ -106,7 +36,7 @@ namespace study1
             return (float)sum;
         }
 
-        // Compute the mean values in the equation (mu)
+        // Compute the mean values in the equation
         private static float Mx(int init, int end, int[] hist)
         {
             int sum = 0;
@@ -185,6 +115,38 @@ namespace study1
             threshold = (byte)FindMax(vet, 256);
 
             return threshold;
+        }
+        
+        public static void ApplyThreshold(Bitmap bmp, int thresholdValue)
+        {
+            var maxVal = 256;
+            if (thresholdValue < 0) return;
+            else if (thresholdValue >= maxVal) return;
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            unsafe
+            {
+                var ptr = (byte*)bmpData.Scan0.ToPointer();
+                var stopAddress = (int)ptr + bmpData.Stride * bmpData.Height;
+
+                while ((int)ptr != stopAddress)
+                {
+                    var totalRgb = (ptr[0] + ptr[1] + ptr[2]) / 3;
+                    if (totalRgb <= thresholdValue) 
+                    { 
+                        ptr[0] = 0; 
+                        ptr[1] = 0; 
+                        ptr[2] = 0; 
+                    }
+                    else
+                    {
+                        ptr[0] = 255;
+                        ptr[1] = 255;
+                        ptr[2] = 255;
+                    }
+                    ptr += 3;
+                }
+            }
+            bmp.UnlockBits(bmpData);
         }
         
         public static int GetOptimalThreshold(Bitmap bmp)

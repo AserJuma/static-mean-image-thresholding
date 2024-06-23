@@ -15,8 +15,7 @@ namespace study1
         private readonly Container _components = null;
         
         public int Nvalue => (Convert.ToInt32(_value.Text, 10));
-
-        //set => _value.Text = value.ToString();
+        
         public Input()
         {
             InitializeComponent();
@@ -71,10 +70,10 @@ namespace study1
             });
             this.Name = "Input";
             this.Text = "Input";
-            this.Load += this.Input_Load;
+            //this.Load += this.Input_Load;
             this.ResumeLayout(false);
 
         }
-        private void Input_Load(object sender, EventArgs e) {}
+        //private void Input_Load(object sender, EventArgs e) {}
     }
 }
