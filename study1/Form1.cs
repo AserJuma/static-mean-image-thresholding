@@ -251,8 +251,8 @@ namespace study1
         // Program Entry Point
         private static void Main()
         {
-            //Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
     }
