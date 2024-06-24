@@ -70,10 +70,8 @@ namespace study1
             });
             this.Name = "Input";
             this.Text = "Input";
-            //this.Load += this.Input_Load;
             this.ResumeLayout(false);
 
         }
-        //private void Input_Load(object sender, EventArgs e) {}
     }
 }

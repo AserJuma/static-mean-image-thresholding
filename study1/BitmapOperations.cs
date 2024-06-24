@@ -25,7 +25,7 @@ namespace study1
             bmp.UnlockBits(bmData);
             return true;
         }
-        //Compute q values
+        // Otsu helper function, Compute q values
         private static float Px(int init, int end, int[] hist)
         {
             int sum = 0;
@@ -36,7 +36,7 @@ namespace study1
             return (float)sum;
         }
 
-        // Compute the mean values in the equation
+        // Otsu helper function, Get the mean values in the equation
         private static float Mx(int init, int end, int[] hist)
         {
             int sum = 0;
@@ -47,7 +47,7 @@ namespace study1
             return (float)sum;
         }
 
-        // Maximum element in a vector
+        // Otsu helper function, Maximum element
         private static int FindMax(float[] vec, int n)
         {
             float maxVec = 0;
@@ -64,7 +64,7 @@ namespace study1
             return idx;
         }
 
-        // Computes the image histogram
+        // Otsu helper function, Compute image histograms
         private static unsafe void GetHistogram(byte* p, int w, int h, int ws, int[] hist)
         {
             hist.Initialize();
@@ -78,7 +78,7 @@ namespace study1
             }
         }
 
-        // Find otsu threshold
+        // otsu threshold
         private static int GetOtsuThreshold(Bitmap bmp)
         {
             byte threshold = 0;

@@ -146,24 +146,16 @@ namespace study1
             this.Menu = this._myMainMenu;
             this.Name = $"Study into .NET GUI & Image Processing";
             this.Text = "GrayScale & Thresholding";
-            //ActiveControl = null;
-            //this.Focus();
-            //this.Load += this.Form1_Load;
+            
             this.ResumeLayout(false);
             this.PerformLayout();
         }
         
         //Helper function to resize form window to fit the image and text
-        private void ResizeFormToFitImage(Bitmap image)
-        {
-            this.ClientSize = new Size((image.Width + 200), (image.Height + 5));
-        }
-
-        //private void Form1_Load(object sender, EventArgs e) { }
 
         private void Load_Window(Bitmap bmp)
         {
-            ResizeFormToFitImage(bmp); 
+            this.ClientSize = new Size((bmp.Width + 200), (bmp.Height + 5));
             
             int textBoxX = bmp.Width + 10; 
             int textBoxY = 100; 
@@ -221,7 +213,7 @@ namespace study1
         {
             _bitUndo = (Bitmap)_myBitmap.Clone();
             int th = BitmapOperations.GetOptimalThreshold(_myBitmap);
-            // Should I automatically greyscale colored images in both thresholding functions? Seems to still apply it to the colored if not done manually
+            // Should I automatically greyscale colored images in both thresholding functions? Still thresholds the old image..
             BitmapOperations.ApplyThreshold(_myBitmap, th);
             _textBox1.Text = th.ToString();
             this.Invalidate();
@@ -258,4 +250,4 @@ namespace study1
     }
 }
 
-//TODO: Fix window scaling issue when reloading to a small image
+//TODO: Fix window scaling issue when reloading to a smaller image than the previous
