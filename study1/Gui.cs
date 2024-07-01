@@ -139,7 +139,7 @@ namespace study1
             if (DialogResult.OK != openFileDialog.ShowDialog()) return;
             _sourceBitmap?.Dispose();
             _sourceBitmap = (Bitmap)Image.FromFile(openFileDialog.FileName, false);
-            //if(_sourceBitmap.PixelFormat != PixelFormat.Format8bppIndexed) return; // ONLY Format8bppIndexed will currently load
+            if(_sourceBitmap.PixelFormat != PixelFormat.Format8bppIndexed) return; // ONLY Format8bppIndexed will currently load
             this.ClientSize = new Size((_sourceBitmap.Width), (_sourceBitmap.Height));
             _thresholdApplied = false; _clonedBitmap = null; // _destBitmap = _cloneBitmapFromSource(_sourceBitmap); 
             this.AutoScroll = true;
